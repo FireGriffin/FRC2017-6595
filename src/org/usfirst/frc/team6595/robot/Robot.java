@@ -1,6 +1,7 @@
 package org.usfirst.frc.team6595.robot;
 
 import edu.wpi.cscore.UsbCamera;
+import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
@@ -16,13 +17,17 @@ public class Robot extends SampleRobot {
 	
 	public RobotDrive terra;
 	public Joystick xbox, xbox2;
-	public Spark hopperIntake, lift, gearArm;
+	//public Joystick ps4;
+	public Spark hopperIntake, lift;
 	public VictorSP leftFront, leftBack, rightFront, rightBack;
 	public UsbCamera cam;
 	
 	public SendableChooser<String> chooser;
 	public PowerDistributionPanel pdp;
 
+	public ADXRS450_Gyro gyro;
+	public double angle;
+	
 	@Override
 	public void robotInit() {
 		
@@ -35,7 +40,6 @@ public class Robot extends SampleRobot {
 		terra.setExpiration(0.1);
 		
 		hopperIntake = new Spark(RobotMap.HOPPER_INTAKE);
-		gearArm = new Spark(RobotMap.GEAR_ARM);
 		lift = new Spark(RobotMap.LIFT);
 		
 		cam = CameraServer.getInstance().startAutomaticCapture(1);
@@ -52,6 +56,11 @@ public class Robot extends SampleRobot {
 		
 		xbox = new Joystick(0);
 		xbox2 = new Joystick(1);
+		
+		gyro = new ADXRS450_Gyro();
+		gyro.calibrate();
+		
+		//ps4 = new Joystick(0);
 
 	}
 
@@ -76,24 +85,37 @@ public class Robot extends SampleRobot {
 			break;
 		}
 	}
-
+	
 	@Override
 	public void operatorControl() {
 		
+		gyro.reset();
 		terra.setSafetyEnabled(true);
 		while (isOperatorControl() && isEnabled()) {
 
 			this.updateDashboard();
-
-			terra.tankDrive(-xbox.getRawAxis(RobotMap.XBOX_LEFTSTICK_Y), -xbox.getRawAxis(RobotMap.XBOX_RIGHTSTICK_Y));
+			
+			    angle = gyro.getAngle() * 0.04;
+			    if (xbox.getRawButton(1)) {
+			      terra.drive(xbox.getRawAxis(RobotMap.XBOX_LEFTSTICK_Y), -angle);
+			    } else {
+			      terra.arcadeDrive(-xbox.getRawAxis(RobotMap.XBOX_LEFTSTICK_Y), -xbox.getRawAxis(RobotMap.XBOX_RIGHTSTICK_X));
+			    }
+			    
+            // terra.arcadeDrive(-ps4.getRawAxis(RobotMap.PS4_LEFTSTICK_Y), -ps4.getRawAxis(RobotMap.PS$_RIGHTSTICK_X);
+			// terra.arcadeDrive(-xbox.getRawAxis(RobotMap.XBOX_LEFTSTICK_Y), -xbox.getRawAxis(RobotMap.XBOX_RIGHTSTICK_X));
 
 			// Hopper
-			if (xbox2.getRawButton(RobotMap.XBOX_X)) {
+			/*if (xbox2.getRawButton(RobotMap.XBOX_X)) {
 				hopperIntake.set(-0.8);
 			} else if (xbox2.getRawButton(RobotMap.XBOX_Y)) {
 				hopperIntake.set(0.8);
 			} else {
 				hopperIntake.stopMotor();
+			}*/
+			
+			if (Math.abs(xbox2.getRawAxis(RobotMap.XBOX_LEFTSTICK_Y)) > 0.2) {
+				hopperIntake.set(xbox2.getRawAxis(RobotMap.XBOX_LEFTSTICK_Y) * 0.8);
 			}
 
 			// Lift Mechanism
@@ -124,6 +146,8 @@ public class Robot extends SampleRobot {
 	}
 
 	public void updateDashboard() {
+		SmartDashboard.putBoolean("Spark 1 Connection (PWM 4): ", hopperIntake.isAlive());
+		SmartDashboard.putBoolean("Spark 2 Connection (PWM 6): ", lift.isAlive());
 		
 		SmartDashboard.putNumber("Voltage of PDP: ", pdp.getVoltage());
 	}

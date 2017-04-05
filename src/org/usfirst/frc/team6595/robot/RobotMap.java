@@ -30,16 +30,38 @@ public class RobotMap {
 	public static final int XBOX_LEFTTRIGGER = 2;
 	
 	/*
+	 * PS4 CONTROLLER
+	 */
+	
+	public static final int PS4_TRIANGLE = 1;
+	public static final int PS4_CIRCLE = 2;
+	public static final int PS4_CROSS = 3;
+	public static final int PS4_SQUARE = 4;
+	public static final int PS4_LEFTBUMPER = 5;
+	public static final int PS4_RIGHTBUMPER = 6;
+	public static final int PS4_LEFTTRIGGER = 7;
+	public static final int PS4_RIGHTTRIGGER = 8;
+	public static final int PS4_SELECT = 9;
+	public static final int PS4_START = 10;
+	public static final int PS4_LEFSTICK_BUTTON = 11;
+	public static final int PS4_RIGHTSTICK_BUTTON = 12;
+	public static final int PS4_LEFTSTICK_X = 0;
+	public static final int PS4_LEFTSTICK_Y = 1;
+	public static final int PS4_RIGHTSTICK_X = 2;
+	public static final int PS4_RIGHTSTICK_Y =  3;
+	
+	/*
 	 * Motor Controllers
 	 */
+	
 	public static final int DRIVE_LEFT_FRONT = 0;
 	public static final int DRIVE_LEFT_BACK = 1;
 	public static final int DRIVE_RIGHT_FRONT = 2;
 	public static final int DRIVE_RIGHT_BACK = 3;
 	
 	public static final int HOPPER_INTAKE = 4;
-	public static final int LIFT = 7;
-	public static final int GEAR_ARM = 8;
+	public static final int LIFT = 6;
+	// public static final int GEAR_ARM = 8;
 	
 	/*
 	 * 
