@@ -66,6 +66,7 @@ public class Robot extends SampleRobot {
 
 	@Override
 	public void autonomous() {
+		
 		String autoSelected = (String) chooser.getSelected();
 		System.out.println("Autonomous Mode selected: " + autoSelected);
 
@@ -83,6 +84,7 @@ public class Robot extends SampleRobot {
 			Timer.delay(3);
 			terra.stopMotor();
 			break;
+			
 		}
 	}
 	
@@ -95,12 +97,15 @@ public class Robot extends SampleRobot {
 
 			this.updateDashboard();
 			
-			    angle = gyro.getAngle() * 0.04;
-			    if (xbox.getRawButton(1)) {
-			      terra.drive(xbox.getRawAxis(RobotMap.XBOX_LEFTSTICK_Y), -angle);
-			    } else {
-			      terra.arcadeDrive(-xbox.getRawAxis(RobotMap.XBOX_LEFTSTICK_Y), -xbox.getRawAxis(RobotMap.XBOX_RIGHTSTICK_X));
-			    }
+			angle = gyro.getAngle() * 0.04;
+			
+			if (xbox.getRawButton(1)) {
+			   gyro.reset();
+			   terra.drive(xbox.getRawAxis(RobotMap.XBOX_LEFTSTICK_Y), -angle);
+			} 
+			else {
+			   terra.arcadeDrive(-xbox.getRawAxis(RobotMap.XBOX_LEFTSTICK_Y), -xbox.getRawAxis(RobotMap.XBOX_RIGHTSTICK_X));
+			}
 			    
             // terra.arcadeDrive(-ps4.getRawAxis(RobotMap.PS4_LEFTSTICK_Y), -ps4.getRawAxis(RobotMap.PS$_RIGHTSTICK_X);
 			// terra.arcadeDrive(-xbox.getRawAxis(RobotMap.XBOX_LEFTSTICK_Y), -xbox.getRawAxis(RobotMap.XBOX_RIGHTSTICK_X));
@@ -121,9 +126,11 @@ public class Robot extends SampleRobot {
 			// Lift Mechanism
 			if (xbox2.getRawButton(RobotMap.XBOX_BACK)) {
 				lift.set(1);
-			} else if (xbox2.getRawButton(RobotMap.XBOX_LEFTSTICK_BUTTON)) {
+			} 
+			else if (xbox2.getRawButton(RobotMap.XBOX_LEFTSTICK_BUTTON)) {
 				lift.set(-1);
-			} else {
+			} 
+			else {
 				lift.stopMotor();
 			}
 			
@@ -137,6 +144,7 @@ public class Robot extends SampleRobot {
 			}*/
 			
 			Timer.delay(0.005);
+			
 		}
 	}
 
@@ -150,5 +158,6 @@ public class Robot extends SampleRobot {
 		SmartDashboard.putBoolean("Spark 2 Connection (PWM 6): ", lift.isAlive());
 		
 		SmartDashboard.putNumber("Voltage of PDP: ", pdp.getVoltage());
+		
 	}
 }
