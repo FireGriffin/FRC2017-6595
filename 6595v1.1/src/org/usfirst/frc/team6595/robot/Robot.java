@@ -172,9 +172,9 @@ public class Robot extends IterativeRobot {
 
 		// Lift
 		if (xbox2.getRawButton(RobotMap.XBOX_LEFTBUMPER)) {
-			lift.set(-0.8);
+			lift.set(-0.9);
 		} else if (xbox2.getRawButton(RobotMap.XBOX_RIGHTBUMPER)) {
-			lift.set(0.8);
+			lift.set(0.9);
 		} else {
 			lift.stopMotor();
 		}

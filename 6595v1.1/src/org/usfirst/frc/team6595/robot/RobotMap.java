@@ -59,8 +59,8 @@ public class RobotMap {
 	public static final int DRIVE_RIGHT_FRONT = 2;
 	public static final int DRIVE_RIGHT_BACK = 3;
 	
-	public static final int HOPPER_INTAKE = 4;
-	public static final int LIFT = 5;
+	public static final int LIFT = 4;
+	public static final int HOPPER_INTAKE = 5;
 	// public static final int GEAR_ARM = 8;
 	
 	/*
