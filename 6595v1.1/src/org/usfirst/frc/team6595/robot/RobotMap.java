@@ -48,7 +48,7 @@ public class RobotMap {
 	public static final int PS4_LEFTSTICK_X = 0;
 	public static final int PS4_LEFTSTICK_Y = 1;
 	public static final int PS4_RIGHTSTICK_X = 2;
-	public static final int PS4_RIGHTSTICK_Y =  3;
+	public static final int PS4_RIGHTSTICK_Y =  5;
 	
 	/*
 	 * Motor Controllers
@@ -60,7 +60,7 @@ public class RobotMap {
 	public static final int DRIVE_RIGHT_BACK = 3;
 	
 	public static final int HOPPER_INTAKE = 4;
-	public static final int LIFT = 6;
+	public static final int LIFT = 5;
 	// public static final int GEAR_ARM = 8;
 	
 	/*

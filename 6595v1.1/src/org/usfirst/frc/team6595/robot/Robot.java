@@ -17,20 +17,23 @@ public class Robot extends IterativeRobot {
 	
 	public RobotDrive terra;
 	public Joystick xbox, xbox2;
-	//public Joystick ps4;
-	public Spark hopperIntake, lift;
+	public Joystick ps4;
+	public Spark lift;
 	public VictorSP leftFront, leftBack, rightFront, rightBack;
 	public UsbCamera cam;
 	
-	public SendableChooser<String> chooser;
+	private SendableChooser<String> chooser = new SendableChooser<>();
 	public String autoSelected;
 	
 	public PowerDistributionPanel pdp;
 
 	public ADXRS450_Gyro gyro;
 	public double angle;
+	public int reset = 0;
 	final String defaultAuto = "Baseline Auton";
 	final String centerpegAuto = "Center Peg Auton";
+	public Timer autoTimer = new Timer();
+	public double autoTime;
 	
 
 	@Override
@@ -44,25 +47,25 @@ public class Robot extends IterativeRobot {
 		terra = new RobotDrive(leftFront, leftBack, rightFront, rightBack);
 		terra.setExpiration(0.1);
 		
-		hopperIntake = new Spark(RobotMap.HOPPER_INTAKE);
+		lift = new Spark(RobotMap.HOPPER_INTAKE);
 		lift = new Spark(RobotMap.LIFT);
 		
-		cam = CameraServer.getInstance().startAutomaticCapture(1);
+		cam = CameraServer.getInstance().startAutomaticCapture(0);
 		cam.setResolution(RobotMap.CAM_WIDTH, RobotMap.CAM_HEIGHT);
 		cam.setFPS(RobotMap.CAM_FPS);
 		
 		pdp = new PowerDistributionPanel();
 		pdp.clearStickyFaults();
 		
-		xbox = new Joystick(0);
+		//xbox = new Joystick(0);
 		xbox2 = new Joystick(1);
 		
 		gyro = new ADXRS450_Gyro();
 		gyro.calibrate();
 		
-		//ps4 = new Joystick(0);
+		ps4 = new Joystick(0);
 		
-		chooser.addDefault("Baseline Auton", defaultAuto);
+	    chooser.addDefault("Baseline Auton", defaultAuto);
 		chooser.addObject("Center Peg Auton", centerpegAuto);
 		SmartDashboard.putData("Autonomous Choices", chooser);
 		
@@ -72,13 +75,16 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void autonomousInit() {
 		
+		terra.setSafetyEnabled(false);
+		reset = 0;
 		autoSelected = chooser.getSelected();
-		// autoSelected = SmartDashboard.getString("Auto Selector",
-		// defaultAuto);
+		autoSelected = SmartDashboard.getString("Auto Selector",
+		defaultAuto);
 		System.out.println("Auto selected: " + autoSelected);
 		
 		gyro.reset();
 		
+		autoTimer.start();
 	}
 
 	@Override
@@ -86,21 +92,50 @@ public class Robot extends IterativeRobot {
 		
 		this.updateDashboard();
 		
-		switch (autoSelected) {
+		autoTime = autoTimer.get();
+		
+		if (autoSelected == centerpegAuto) {
+			
+			if (autoTime <= 1.5) {
+				terra.drive(0.3, -angle);
+			}
+			
+			if (autoTime <= 2.1) {
+				terra.drive(-0.2, -angle);
+			}
+			
+			else {
+				terra.stopMotor();
+			}
+		}
+		
+		else if (autoSelected == defaultAuto) {
+			
+			if (autoTime <= 2) {
+				terra.drive(0.3, -angle);
+			}
+			
+			else {
+				terra.stopMotor();
+			}
+			
+		}
+		
+		/*switch //(autoSelected) {
 		case centerpegAuto:
-			terra.setSafetyEnabled(false);
+			/*terra.setSafetyEnabled(false);
 			terra.drive(0.3, 0.0);
 			Timer.delay(2.3);
+			terra.stopMotor();*/
+		//	break;
+		//case defaultAuto:
+		//default:
+			/*terra.setSafetyEnabled(false);
+			terra.drive(0.3, 0.0);
+			Timer.delay(1.5);
 			terra.stopMotor();
-			break;
-		case defaultAuto:
-		default:
-			terra.setSafetyEnabled(false);
-			terra.drive(0.4, 0.0);
-			Timer.delay(3);
-			terra.stopMotor();
-			break;
-		}
+			Timer.delay(10);*/
+			//break;
 	}
 	
 	@Override
@@ -115,43 +150,49 @@ public class Robot extends IterativeRobot {
 	public void teleopPeriodic() {
 		
 		this.updateDashboard();
-		
-		angle = gyro.getAngle() * 0.04;
+	
 		
 		if (xbox.getRawButton(1)) {
-		   gyro.reset();
-		   terra.drive(xbox.getRawAxis(RobotMap.XBOX_LEFTSTICK_Y), -angle);
+			
+			if (reset < 1) {
+				gyro.reset();
+				reset++;
+			}
+			
+		   terra.drive(-ps4.getRawAxis(RobotMap.XBOX_LEFTSTICK_Y), -angle);
 		} 
 		else {
-		   terra.arcadeDrive(-xbox.getRawAxis(RobotMap.XBOX_LEFTSTICK_Y), -xbox.getRawAxis(RobotMap.XBOX_RIGHTSTICK_X));
+			
+		   reset = 0;
+		   terra.tankDrive(-ps4.getRawAxis(RobotMap.PS4_LEFTSTICK_Y), -ps4.getRawAxis(RobotMap.PS4_RIGHTSTICK_Y));
 		}
 		    
         // terra.arcadeDrive(-ps4.getRawAxis(RobotMap.PS4_LEFTSTICK_Y), -ps4.getRawAxis(RobotMap.PS$_RIGHTSTICK_X);
 		// terra.arcadeDrive(-xbox.getRawAxis(RobotMap.XBOX_LEFTSTICK_Y), -xbox.getRawAxis(RobotMap.XBOX_RIGHTSTICK_X));
 
-		// Hopper
-		/*if (xbox2.getRawButton(RobotMap.XBOX_X)) {
-			hopperIntake.set(-0.8);
-		} else if (xbox2.getRawButton(RobotMap.XBOX_Y)) {
-			hopperIntake.set(0.8);
+		// Lift
+		if (xbox2.getRawButton(RobotMap.XBOX_LEFTBUMPER)) {
+			lift.set(-0.8);
+		} else if (xbox2.getRawButton(RobotMap.XBOX_RIGHTBUMPER)) {
+			lift.set(0.8);
 		} else {
-			hopperIntake.stopMotor();
-		}*/
-		
-		if (Math.abs(xbox2.getRawAxis(RobotMap.XBOX_LEFTSTICK_Y)) > 0.2) {
-			hopperIntake.set(xbox2.getRawAxis(RobotMap.XBOX_LEFTSTICK_Y) * 0.8);
+			lift.stopMotor();
 		}
+		
+		/*if (Math.abs(xbox2.getRawAxis(RobotMap.XBOX_LEFTSTICK_Y)) > 0.2) {
+			lift.set(xbox2.getRawAxis(RobotMap.XBOX_LEFTSTICK_Y) * 0.8);
+		}*/
 
 		// Lift Mechanism
-		if (xbox2.getRawButton(RobotMap.XBOX_BACK)) {
+		/*if (xbox2.getRawButton(RobotMap.XBOX_X)) {
 			lift.set(1);
 		} 
-		else if (xbox2.getRawButton(RobotMap.XBOX_LEFTSTICK_BUTTON)) {
+		else if (xbox2.getRawButton(RobotMap.XBOX_Y)) {
 			lift.set(-1);
 		} 
 		else {
 			lift.stopMotor();
-		}
+		}*/
 		
 		/*Gear Arm
 		if (xbox2.getRawButton(RobotMap.XBOX_LEFTBUMPER)) {
@@ -171,10 +212,12 @@ public class Robot extends IterativeRobot {
 	}
 	
 	public void updateDashboard() {
-		SmartDashboard.putBoolean("Spark 1 Connection (PWM 4): ", hopperIntake.isAlive());
-		SmartDashboard.putBoolean("Spark 2 Connection (PWM 6): ", lift.isAlive());
 		
+		angle = gyro.getAngle() * 0.04;
+		
+		SmartDashboard.putBoolean("Spark Lift Connection (PWM 5): ", lift.isAlive());		
 		SmartDashboard.putNumber("Voltage of PDP: ", pdp.getVoltage());
+		SmartDashboard.putNumber("Gyro Angle", gyro.getAngle());
 		
 	}
 	
